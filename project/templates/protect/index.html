@@ -1,0 +1,29 @@
+{% extends "main.html" %}
+
+{% block content %}
+<h2>Страница авторизованного пользователя {{request.user.username}}</h2>
+<div> Здесь может содержаться персональная информация для каждого пользователя </div>
+
+# !!!ОТПИСАТЬСЯ НЕ ПОЛУЧИТСЯ
+#блок вставлен в попытке добавить возможность "отписаться" от новостей
+<div>
+    <ul>
+    {% for category in categories %}
+    <li>
+        {{category.get_category}}
+        <a href="{%url 'unsubscribe' category.id %}">
+            <button class="button-xsmall pure-button button-warning">
+                <i> class="bi bi-bookmark-plus"</i>
+                unsubscribe
+            </button>
+        </a>
+    </li>
+    {% endfor %}
+    </ul>
+</div>#блок вставлен в попытке добавить возможность "отписаться" от новостей
+
+<button> <a href="sign/logout/">Выйти</a> </button>
+{% if is_not_authors %}
+<button> <a href="sign/upgrade/"> Стать автором!</a> </button>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,77 @@
+<!--  наследуемся от шаблона default.html, который мы создавали для flatpages -->
+{% extends 'flatpages/default.html' %}
+
+<!--Подключить свои фильтры. Сделать это можно с помощью указания
+тега {% load custom_filters %}. Где custom_filters — это название Python файла-->
+{% load custom_filters %}
+
+
+{% block title %}
+Posts
+{% endblock title %}
+
+<!-- В контенте на странице мы выводим все новости -->
+{% block content %}
+    <h1>Все новости</h1>
+    <h3>Количество новостей: {{ posts|length }}</h3>
+    <!-- Используем переданную из представления переменную time_now
+    и применяем к ней фильтр date. По назначению этот фильтр очень похож
+    на метод strftime у объекта datetime в Python — вывод времени
+    в указанном формате. -->
+    <h3>{{ time_now|date:'d M Y' }}</h3>
+{% if is_not_subscriber %}
+<p class="text-center"><a href="{% url 'subscribe' category.id %}" class="btn btn-secondary btn-sm">Подписаться</a></p>
+{% endif %}
+    <hr>
+    {%if posts %}
+        <table><!-- Начинаем описывать таблицу -->
+            <thead>
+                <!-- th - ячейка заголовка таблицы -->
+                <th>Заголовок</th>
+                <th>Дата</th>
+                <th>Текст</th>
+                <th>Категории</th>
+            </thead>
+
+           {% for post in category_news_list %}
+            <tr><!-- Добавляем строку -->
+                <!-- td - Добавляем ячейку в строку -->
+                <td>{{ post.header|censor }}</td>
+                <td>{{ post.time_in|date:'d M Y'}}</td>
+                <td>{{ post.text|truncatechars:20|censor }}</td>
+                <td>
+                    {% for category in post.category.all %}
+                    <a href="{% url 'category_list' category.id %}">{{category}}</a>
+                    {% endfor %}
+                </td>
+            </tr> <!-- Не забываем закрыть HTML-тег строки -->
+           {% endfor %}
+        </table><!-- ... и таблицы -->
+    {% else %}
+       <h2>Новостей нет!Скукота</h2>
+    {% endif %}
+
+ {# Добавляем пагинацию на страницу #}
+
+   {# Информация о предыдущих страницах #}
+        {% if page_obj.has_previous %}
+            <a href="?page=1">Начало</a>
+            <a href="?page={{ page_obj.previous_page_number }}"><<<</a>
+        {% endif %}
+
+   {# Информация о текущей странице #}
+        {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+                <a>{{ num }}</a>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <a href="?page={{ num }}">{{ num }}</a>
+            {% endif %}
+        {% endfor %}
+
+   {# Информация о следующих страницах #}
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">>>></a>
+            <a href="?page={{ page_obj.paginator.num_pages }}">Конец</a>
+        {% endif %}
+
+{% endblock content %}ml>

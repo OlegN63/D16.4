@@ -1,0 +1,16 @@
+<!--  наследуемся от шаблона default.html, который мы создавали для flatpages -->
+{% extends 'flatpages/default.html' %}
+
+<!--Подключить свои фильтры. Сделать это можно с помощью указания
+тега {% load custom_filters %}. Где custom_filters — это название Python файла-->
+{% load custom_filters %}
+
+{% block title %}
+post.title|censor
+{% endblock title %}
+
+{% block content %}
+<h1>{{ post.header|censor }}</h1>
+<h3>{{ post.time_in|date:'d M Y' }}</h3>
+<h6>{{ post.text|censor }}</h6>
+{% endblock content %}

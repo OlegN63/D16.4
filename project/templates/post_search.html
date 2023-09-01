@@ -1,0 +1,82 @@
+<!--  наследуемся от шаблона default.html, который мы создавали для flatpages -->
+{% extends 'flatpages/default.html' %}
+
+<!--Подключить свои фильтры. Сделать это можно с помощью указания
+тега {% load custom_filters %}. Где custom_filters — это название Python файла-->
+{% load custom_filters %}
+
+
+{% block title %}
+News Search
+{% endblock title %}
+
+<!-- В контенте на странице мы выводим все новости -->
+{% block content %}
+    <h1>поиск</h1>
+
+   {# Добавляем форму, которая объединяет набор полей, которые будут отправляться в запросе #}
+   <form action="" method="get">
+       {# Переменная, которую мы передали через контекст, может сгенерировать нам форму с полями #}
+       {{ filterset.form.as_p }}
+       {# Добавим кнопку отправки данных формы #}
+       <input type="submit" value="Найти" />
+   </form>
+
+    <h3>Количество новостей: {{ posts|length }}</h3>
+    <!-- Используем переданную из представления переменную time_now
+    и применяем к ней фильтр date. По назначению этот фильтр очень похож
+    на метод strftime у объекта datetime в Python — вывод времени
+    в указанном формате. -->
+    <h3>{{ time_now|date:'d M Y' }}</h3>
+    <hr>
+    {%if post_search %}
+        <table><!-- Начинаем описывать таблицу -->
+            <thead>
+                <!-- th - ячейка заголовка таблицы -->
+                <th>Заголовок</th>
+                <th>Дата</th>
+                <th>Текст</th>
+            </thead>
+
+            {% for post in post_search %}
+            <div>
+                {{ post.author.user.username }}
+                <br>
+                {{ post.time_in|date:'d M Y'}}
+                <br>
+                {{ post.header|censor }}
+                <br>
+                {{ post.text|truncatechars:20|censor }}
+                <br>
+                {{ post.get_type_display }}
+            </div>
+           {% endfor %}
+        </table><!-- ... и таблицы -->
+    {% else %}
+       <h2>Новостей нет!Скукота</h2>
+    {% endif %}
+
+ {# Добавляем пагинацию на страницу #}
+
+   {# Информация о предыдущих страницах #}
+        {% if page_obj.has_previous %}
+            <a href="?page=1">Начало</a>
+            <a href="?page={{ page_obj.previous_page_number }}"><<<</a>
+        {% endif %}
+
+   {# Информация о текущей странице #}
+        {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+                <a>{{ num }}</a>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <a href="?page={{ num }}">{{ num }}</a>
+            {% endif %}
+        {% endfor %}
+
+   {# Информация о следующих страницах #}
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">>>></a>
+            <a href="?page={{ page_obj.paginator.num_pages }}">Конец</a>
+        {% endif %}
+
+{% endblock content %}ml>
